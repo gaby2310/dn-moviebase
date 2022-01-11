@@ -9,6 +9,8 @@ export default function WatchlistButton() {
   const { data } = useSWR(`/api/watchlist/${id}`);
   const { mutate } = useSWRConfig();
 
+  console.log(data);
+
   return (
     <Tooltip
       label={
