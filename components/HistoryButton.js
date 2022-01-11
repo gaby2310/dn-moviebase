@@ -7,6 +7,8 @@ import { fetcher } from '../utils/api';
 export default function HistoryButton() {
   const { id } = useRouter().query;
   const { data } = useSWR(`/api/history/${id}`);
+  const { data: watchlistData } = useSWR(`/api/watchlist/${id}`);
+
   const { mutate } = useSWRConfig();
 
   return (
@@ -16,9 +18,14 @@ export default function HistoryButton() {
         colorScheme={data?.found ? 'purple' : 'gray'}
         size="sm"
         onClick={() => {
-          mutate(`/api/history/${id}`, () =>
-            fetcher(`/api/history/${id}`, {
-              method: data.found ? 'DELETE' : 'PUT',
+          mutate(
+            `/api/history/${id}`,
+            () =>
+              fetcher(`/api/history/${id}`, {
+                method: data.found ? 'DELETE' : 'PUT',
+              }),
+            fetcher(`/api/watchlist/${id}`, {
+              method: watchlistData.found ? 'DELETE' : undefined,
             })
           );
         }}
