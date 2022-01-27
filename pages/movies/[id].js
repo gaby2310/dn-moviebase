@@ -14,13 +14,21 @@ import {
   Stack,
   Tag,
   Text,
+  Image as ChakraImage,
+  Flex,
+  Spacer,
 } from '@chakra-ui/react';
 import Layout from '../../components/Layout';
 import HistoryButton from '../../components/HistoryButton';
+import Link from 'next/link';
+import WatchlistButton from '../../components/WatchlistButton';
 
 const MovieContent = () => {
+  const router = useRouter();
   const { id } = useRouter().query;
   const { data, error } = useSWR(id && `/api/movies/${id}`);
+
+  console.log({ data });
 
   if (error) {
     return (
@@ -39,11 +47,16 @@ const MovieContent = () => {
   return (
     <Stack direction={['column', 'row']} spacing={4}>
       <Head>
-        <title>{data.title}</title>
+        <title>
+          {data.title} {`${data.vote_average}`}
+        </title>
       </Head>
       <Box minW="300px" pos="relative">
         <HStack pos="absolute" zIndex={1} top={2} right={2}>
           <HistoryButton />
+        </HStack>
+        <HStack pos="absolute" zIndex={1} top={2} left={2}>
+          <WatchlistButton />
         </HStack>
         <Image
           src={buildImageUrl(data.poster_path, 'w300')}
@@ -54,6 +67,35 @@ const MovieContent = () => {
           objectFit="contain"
           unoptimized
         />
+        <Flex align="center" mt="20px">
+          <Box>
+            <Link
+              href={
+                data?.imdb_id
+                  ? `https://www.imdb.com/title/${data?.imdb_id}`
+                  : `/movies/${id}`
+              }
+              passHref
+            >
+              <ChakraImage
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/IMDB_Logo_2016.svg/60px-IMDB_Logo_2016.svg.png"
+                alt="imdb btn"
+              />
+            </Link>
+          </Box>
+          <Spacer />
+          <Box>
+            <Link
+              href={data?.homepage ? `${data?.homepage}` : `/movies/${id}`}
+              passHref
+            >
+              <ChakraImage
+                src="https://i.postimg.cc/c4sfzr0k/image.png"
+                alt="website btn"
+              />
+            </Link>
+          </Box>
+        </Flex>
       </Box>
       <Stack>
         <HStack justify="space-between">
@@ -74,6 +116,12 @@ const MovieContent = () => {
           ))}
         </Stack>
         <Box>{data.overview}</Box>
+        <Box>
+          <Stack direction="row" justify="space-between" mt="30px">
+            <Box>Score: {data.vote_average}</Box>
+            <Box>Votes: {data.vote_count}</Box>
+          </Stack>
+        </Box>
       </Stack>
     </Stack>
   );
